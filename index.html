@@ -331,8 +331,8 @@
         }
 
         .photo-preview {
-            width: 150px;
-            height: 150px;
+            width: 200px;
+            height: 200px;
             border: 2px dashed #ddd;
             border-radius: 10px;
             display: flex;
@@ -340,12 +340,31 @@
             justify-content: center;
             margin: 0 auto 15px;
             overflow: hidden;
+            position: relative;
         }
 
         .photo-preview img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: none;
+        }
+
+        .photo-preview i {
+            font-size: 3rem;
+            color: #ddd;
+        }
+
+        .photo-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .photo-actions button {
+            width: auto;
+            padding: 8px 15px;
         }
 
         .location-info {
@@ -353,6 +372,14 @@
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 1.5rem;
+        }
+
+        .location-details {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            font-size: 0.9rem;
         }
 
         /* User Management */
@@ -384,6 +411,14 @@
             background: #5a6268;
         }
 
+        .btn-warning {
+            background: var(--warning);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
         /* Footer */
         footer {
             background: var(--dark);
@@ -391,6 +426,44 @@
             text-align: center;
             padding: 1.5rem 0;
             margin-top: 2rem;
+        }
+
+        /* Camera Modal */
+        .camera-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .camera-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        #camera-preview {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            background: #eee;
+            margin: 0 auto 15px;
+            border-radius: 5px;
+        }
+
+        .camera-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
         }
 
         /* Responsive */
@@ -411,6 +484,11 @@
 
             .user-form {
                 grid-template-columns: 1fr;
+            }
+
+            .photo-preview {
+                width: 150px;
+                height: 150px;
             }
         }
     </style>
@@ -583,18 +661,30 @@
                 <div class="photo-section">
                     <h3>Foto Selfie</h3>
                     <p>Ambil foto selfie sebagai bukti kehadiran:</p>
-                    <div class="photo-preview">
-                        <i class="fas fa-camera" style="font-size: 3rem; color: #ddd;"></i>
+                    <div class="photo-preview" id="photo-preview">
+                        <i class="fas fa-camera"></i>
+                        <img id="preview-image" src="" alt="Preview Foto">
                     </div>
-                    <button class="btn" style="width: auto; display: block; margin: 0 auto;">
-                        <i class="fas fa-camera"></i> Ambil Foto
-                    </button>
+                    <div class="photo-actions">
+                        <button class="btn" id="take-photo-btn">
+                            <i class="fas fa-camera"></i> Ambil Foto
+                        </button>
+                        <button class="btn btn-secondary" id="upload-photo-btn">
+                            <i class="fas fa-upload"></i> Upload Foto
+                        </button>
+                        <input type="file" id="file-input" accept="image/*" style="display: none;">
+                    </div>
                 </div>
                 
                 <div class="location-info">
                     <h3><i class="fas fa-map-marker-alt"></i> Informasi Lokasi</h3>
                     <p>Lokasi Anda: <span id="location-text">Mendeteksi lokasi...</span></p>
-                    <button class="btn" style="width: auto; background: var(--warning);">
+                    <div class="location-details" id="location-details">
+                        <p><strong>Alamat:</strong> <span id="location-address">-</span></p>
+                        <p><strong>Koordinat:</strong> <span id="location-coords">-</span></p>
+                        <p><strong>Akurasi:</strong> <span id="location-accuracy">-</span></p>
+                    </div>
+                    <button class="btn btn-warning" id="update-location-btn">
                         <i class="fas fa-sync-alt"></i> Perbarui Lokasi
                     </button>
                 </div>
@@ -725,8 +815,8 @@
                             <td>Siswa</td>
                             <td>15 Agustus 2023</td>
                             <td>
-                                <button class="btn" style="padding: 5px 10px; background: var(--warning);">Edit</button>
-                                <button class="btn" style="padding: 5px 10px; background: var(--danger);">Hapus</button>
+                                <button class="btn btn-warning" style="padding: 5px 10px;">Edit</button>
+                                <button class="btn btn-danger" style="padding: 5px 10px;">Hapus</button>
                             </td>
                         </tr>
                         <tr>
@@ -735,8 +825,8 @@
                             <td>Siswa</td>
                             <td>15 Agustus 2023</td>
                             <td>
-                                <button class="btn" style="padding: 5px 10px; background: var(--warning);">Edit</button>
-                                <button class="btn" style="padding: 5px 10px; background: var(--danger);">Hapus</button>
+                                <button class="btn btn-warning" style="padding: 5px 10px;">Edit</button>
+                                <button class="btn btn-danger" style="padding: 5px 10px;">Hapus</button>
                             </td>
                         </tr>
                         <tr>
@@ -745,8 +835,8 @@
                             <td>Guru</td>
                             <td>10 Agustus 2023</td>
                             <td>
-                                <button class="btn" style="padding: 5px 10px; background: var(--warning);">Edit</button>
-                                <button class="btn" style="padding: 5px 10px; background: var(--danger);">Hapus</button>
+                                <button class="btn btn-warning" style="padding: 5px 10px;">Edit</button>
+                                <button class="btn btn-danger" style="padding: 5px 10px;">Hapus</button>
                             </td>
                         </tr>
                     </tbody>
@@ -754,6 +844,18 @@
             </div>
         </section>
     </main>
+
+    <!-- Camera Modal -->
+    <div class="camera-modal" id="camera-modal">
+        <div class="camera-container">
+            <h3>Ambil Foto Selfie</h3>
+            <video id="camera-preview" autoplay></video>
+            <div class="camera-actions">
+                <button class="btn btn-secondary" id="close-camera-btn">Tutup</button>
+                <button class="btn" id="capture-btn">Ambil Foto</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer>
@@ -785,11 +887,27 @@
         const navAdmin = document.getElementById('nav-admin');
         const attendanceOptions = document.querySelectorAll('.attendance-option');
         const locationText = document.getElementById('location-text');
+        const locationAddress = document.getElementById('location-address');
+        const locationCoords = document.getElementById('location-coords');
+        const locationAccuracy = document.getElementById('location-accuracy');
+        const updateLocationBtn = document.getElementById('update-location-btn');
         const submitAttendance = document.getElementById('submit-attendance');
+        const takePhotoBtn = document.getElementById('take-photo-btn');
+        const uploadPhotoBtn = document.getElementById('upload-photo-btn');
+        const fileInput = document.getElementById('file-input');
+        const previewImage = document.getElementById('preview-image');
+        const photoPreview = document.getElementById('photo-preview');
+        const cameraModal = document.getElementById('camera-modal');
+        const cameraPreview = document.getElementById('camera-preview');
+        const closeCameraBtn = document.getElementById('close-camera-btn');
+        const captureBtn = document.getElementById('capture-btn');
 
         // Status login
         let isLoggedIn = false;
         let currentUser = null;
+        let selectedStatus = null;
+        let currentLocation = null;
+        let stream = null;
 
         // Event Listeners
         loginForm.addEventListener('submit', handleLogin);
@@ -804,21 +922,30 @@
             option.addEventListener('click', function() {
                 attendanceOptions.forEach(opt => opt.classList.remove('selected'));
                 this.classList.add('selected');
+                selectedStatus = this.dataset.status;
             });
         });
 
         // Tombol submit absensi
         submitAttendance.addEventListener('click', function() {
-            const selectedOption = document.querySelector('.attendance-option.selected');
-            if (!selectedOption) {
+            if (!selectedStatus) {
                 alert('Pilih status kehadiran terlebih dahulu!');
                 return;
             }
             
-            const status = selectedOption.dataset.status;
+            if (!previewImage.src) {
+                alert('Ambil atau upload foto terlebih dahulu!');
+                return;
+            }
+            
+            if (!currentLocation) {
+                alert('Lokasi belum terdeteksi!');
+                return;
+            }
+            
             let statusText = '';
             
-            switch(status) {
+            switch(selectedStatus) {
                 case 'present':
                     statusText = 'Hadir';
                     break;
@@ -830,7 +957,43 @@
                     break;
             }
             
-            alert(`Absensi berhasil dikirim!\nStatus: ${statusText}`);
+            alert(`Absensi berhasil dikirim!\nStatus: ${statusText}\nLokasi: ${currentLocation.address}`);
+        });
+
+        // Upload foto
+        uploadPhotoBtn.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    previewImage.src = event.target.result;
+                    previewImage.style.display = 'block';
+                    photoPreview.querySelector('i').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Ambil foto dengan kamera
+        takePhotoBtn.addEventListener('click', function() {
+            openCamera();
+        });
+
+        closeCameraBtn.addEventListener('click', function() {
+            closeCamera();
+        });
+
+        captureBtn.addEventListener('click', function() {
+            capturePhoto();
+        });
+
+        // Perbarui lokasi
+        updateLocationBtn.addEventListener('click', function() {
+            getLocation();
         });
 
         // Fungsi login
@@ -854,6 +1017,11 @@
                 usernameDisplay.textContent = user.name;
                 showPage('dashboard');
                 loginPage.style.display = 'none';
+                
+                // Jika user adalah siswa, ambil lokasi
+                if (user.role === 'student') {
+                    getLocation();
+                }
             } else {
                 alert('Username, password, atau peran salah!');
             }
@@ -871,6 +1039,9 @@
             
             // Reset form login
             loginForm.reset();
+            
+            // Tutup kamera jika terbuka
+            closeCamera();
         }
 
         // Fungsi menampilkan halaman berdasarkan peran
@@ -901,21 +1072,135 @@
             }
         }
 
-        // Simulasi deteksi lokasi
-        function detectLocation() {
-            // Dalam implementasi nyata, ini akan menggunakan Geolocation API
-            const locations = [
-                "Sekolah - Jl. Pendidikan No. 123",
-                "Rumah - Jl. Merdeka No. 45",
-                "Kantor - Jl. Sudirman No. 78"
-            ];
+        // Fungsi untuk mendapatkan lokasi
+        function getLocation() {
+            if (!navigator.geolocation) {
+                locationText.textContent = 'Geolocation tidak didukung browser ini';
+                return;
+            }
+
+            locationText.textContent = 'Mendeteksi lokasi...';
             
-            const randomLocation = locations[Math.floor(Math.random() * locations.length)];
-            locationText.textContent = randomLocation;
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    const accuracy = position.coords.accuracy;
+                    
+                    // Simpan data lokasi
+                    currentLocation = {
+                        latitude: latitude,
+                        longitude: longitude,
+                        accuracy: accuracy,
+                        address: `Lat: ${latitude.toFixed(6)}, Long: ${longitude.toFixed(6)}`
+                    };
+                    
+                    // Update tampilan
+                    locationText.textContent = 'Lokasi berhasil dideteksi';
+                    locationCoords.textContent = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+                    locationAccuracy.textContent = `${accuracy.toFixed(2)} meter`;
+                    
+                    // Untuk demo, kita buat alamat acak
+                    const addresses = [
+                        'Sekolah - Jl. Pendidikan No. 123, Jakarta',
+                        'Rumah - Jl. Merdeka No. 45, Jakarta',
+                        'Kantor - Jl. Sudirman No. 78, Jakarta'
+                    ];
+                    const randomAddress = addresses[Math.floor(Math.random() * addresses.length)];
+                    locationAddress.textContent = randomAddress;
+                    currentLocation.address = randomAddress;
+                },
+                function(error) {
+                    console.error('Error getting location:', error);
+                    let errorMessage = 'Gagal mendapatkan lokasi';
+                    
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = 'Akses lokasi ditolak oleh pengguna';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = 'Informasi lokasi tidak tersedia';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = 'Permintaan lokasi timeout';
+                            break;
+                    }
+                    
+                    locationText.textContent = errorMessage;
+                    
+                    // Untuk demo, gunakan lokasi default
+                    currentLocation = {
+                        address: 'Sekolah - Jl. Pendidikan No. 123, Jakarta',
+                        latitude: -6.200000,
+                        longitude: 106.816666,
+                        accuracy: 100
+                    };
+                    
+                    locationAddress.textContent = currentLocation.address;
+                    locationCoords.textContent = `${currentLocation.latitude}, ${currentLocation.longitude}`;
+                    locationAccuracy.textContent = `${currentLocation.accuracy} meter`;
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 60000
+                }
+            );
+        }
+
+        // Fungsi untuk membuka kamera
+        function openCamera() {
+            cameraModal.style.display = 'flex';
+            
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(function(mediaStream) {
+                        stream = mediaStream;
+                        cameraPreview.srcObject = stream;
+                    })
+                    .catch(function(error) {
+                        console.error('Error accessing camera:', error);
+                        alert('Tidak dapat mengakses kamera. Pastikan Anda memberikan izin akses kamera.');
+                    });
+            } else {
+                alert('Browser Anda tidak mendukung akses kamera.');
+            }
+        }
+
+        // Fungsi untuk menutup kamera
+        function closeCamera() {
+            cameraModal.style.display = 'none';
+            
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+        }
+
+        // Fungsi untuk mengambil foto
+        function capturePhoto() {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            canvas.width = cameraPreview.videoWidth;
+            canvas.height = cameraPreview.videoHeight;
+            
+            context.drawImage(cameraPreview, 0, 0, canvas.width, canvas.height);
+            
+            // Konversi ke data URL
+            const dataURL = canvas.toDataURL('image/png');
+            
+            // Tampilkan preview
+            previewImage.src = dataURL;
+            previewImage.style.display = 'block';
+            photoPreview.querySelector('i').style.display = 'none';
+            
+            // Tutup kamera
+            closeCamera();
         }
 
         // Inisialisasi
-        detectLocation();
+        getLocation();
     </script>
 </body>
 </html>
